@@ -11,7 +11,7 @@
 #   patience   : early stopping; berhenti jika valid loss tidak membaik selama N epoch (None = tidak dipakai)
 
 from Models.CNN import SimpleCNN
-
+from Models.CNN2 import SimpleCNNReg
 CONFIGS = {
     # Model 1: SimpleCNN sesuai materi
     "model1": {
@@ -25,6 +25,14 @@ CONFIGS = {
     },
 
     # Model 2: SimpleCNN dengan parameter berbeda (diisi anggota Model 2)
-
+    "model2": {
+        "model": SimpleCNNReg,
+        "model_args": {"output": 6},
+        "img_size": 100,
+        "batch_size": 16,
+        "epoch": 20,
+        "lr": 0.0001,
+        "patience": 5,
+    },
     # Model 3: model bebas (diisi setelah Model 1 selesai)
 }
