@@ -26,10 +26,10 @@ dievaluasi dengan 5-fold cross validation.
 
 ## Persiapan environment
 
-Dikembangkan dengan **Python 3.10** dan PyTorch 2.15.0.
+Dikembangkan dengan **Python 3.12** dan PyTorch 2.15.0.
 
 ```bash
-conda create -n ipsd python=3.10 -y
+conda create -n ipsd python=3.12 -y
 conda activate ipsd
 ```
 
