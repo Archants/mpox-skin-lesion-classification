@@ -26,15 +26,15 @@ CONFIGS = {
         "patience": None,
     },
 
-    # Model 2: SimpleCNN dengan parameter berbeda (diisi anggota Model 2)
+    # Model 2: SimpleCNN + regularisasi (BatchNorm2d, Dropout2d, Dropout sebelum Linear)
     "model2": {
-    "model": SimpleCNNReg,
-    "model_args": {"output": 6},
-    "img_size": 100,
-    "batch_size": 16,
-    "epoch": 20,
-    "lr": 0.0001,
-    "patience": 5,
+        "model": SimpleCNNReg,
+        "model_args": {"output": 6},
+        "img_size": 100,
+        "batch_size": 16,
+        "epoch": 30,
+        "lr": 0.0001,
+        "patience": 10,
     },
 
     # Model 3 (FINAL): ConvNeXt-Tiny pretrained ImageNet (transfer learning)
@@ -42,11 +42,10 @@ CONFIGS = {
     "model3": {
         "model": ConvNeXtTiny,
         "model_args": {"output": 6, "pretrained": True},
-        "img_size": 224,    
-        "batch_size": 16,   
-        "epoch": 10,        
-        "lr": 0.00003,      
-        "patience": 5,      
+        "img_size": 224,
+        "batch_size": 16,
+        "epoch": 10,
+        "lr": 0.00003,
+        "patience": 5,
     },
-
 }
