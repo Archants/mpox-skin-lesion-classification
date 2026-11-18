@@ -11,6 +11,7 @@
 #   patience   : early stopping; berhenti jika valid loss tidak membaik selama N epoch (None = tidak dipakai)
 
 from Models.CNN import SimpleCNN
+from Models.CNN2 import SimpleCNNReg
 from Models.ConvNeXt import ConvNeXtTiny
 
 CONFIGS = {
@@ -26,17 +27,26 @@ CONFIGS = {
     },
 
     # Model 2: SimpleCNN dengan parameter berbeda (diisi anggota Model 2)
+    "model2": {
+    "model": SimpleCNNReg,
+    "model_args": {"output": 6},
+    "img_size": 100,
+    "batch_size": 16,
+    "epoch": 20,
+    "lr": 0.0001,
+    "patience": 5,
+    },
 
     # Model 3 (FINAL): ConvNeXt-Tiny pretrained ImageNet (transfer learning)
     # Pengaturan = percobaan A (model3_lr3e-5), terbaik di Valid fold 1 di antara percobaan A-D.
     "model3": {
         "model": ConvNeXtTiny,
         "model_args": {"output": 6, "pretrained": True},
-        "img_size": 224,      # ukuran input bawaan model pretrained ImageNet
-        "batch_size": 16,     # lebih kecil dari Model 1 karena model besar, supaya muat di VRAM 8 GB
-        "epoch": 10,          # epoch terbaik di percobaan selalu 1-2, jadi 10 sudah lebih dari cukup
-        "lr": 0.00003,        # hasil percobaan: 0.0001 terlalu cepat menghafal, 0.00003 terbaik
-        "patience": 5,        # early stopping jika valid loss tidak membaik 5 epoch berturut-turut
+        "img_size": 224,    
+        "batch_size": 16,   
+        "epoch": 10,        
+        "lr": 0.00003,      
+        "patience": 5,      
     },
 
 }
