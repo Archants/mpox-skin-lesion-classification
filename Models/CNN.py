@@ -4,9 +4,6 @@ import torch.nn as nn
 
 class SimpleCNN(nn.Module):
     def __init__(self, input_dim=100, input_c=3, output=6, hidden_dim=128, dropout=0.5, device='cpu'):
-        # Arsitektur sama persis dengan materi; hanya output diubah menjadi 6 kelas.
-        # Catatan: input_dim, hidden_dim, dropout, dan device ada di materi tetapi tidak dipakai di arsitektur.
-        # Ukuran lapisan Linear (50 * 9 * 9) hanya cocok untuk gambar 100 x 100.
         super(SimpleCNN, self).__init__()
 
         self.convBlock1 = nn.Sequential(
@@ -24,11 +21,11 @@ class SimpleCNN(nn.Module):
         self.logSoftmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
-        x = self.convBlock1(x)   # (B, 3, 100, 100) -> (B, 20, 32, 32)
-        x = self.convBlock2(x)   # (B, 20, 32, 32)  -> (B, 50, 9, 9)
+        x = self.convBlock1(x)
+        x = self.convBlock2(x)
 
-        x = self.fc(torch.flatten(x, 1))   # (B, 50*9*9) -> (B, 6)
-        x = self.logSoftmax(x)             # log-probabilitas 6 kelas
+        x = self.fc(torch.flatten(x, 1))
+        x = self.logSoftmax(x)
 
         return x
 
@@ -36,9 +33,9 @@ class SimpleCNN(nn.Module):
 if __name__ == "__main__":
     # Uji cepat: python Models/CNN.py
     model = SimpleCNN()
-    dummy = torch.rand(1, 3, 100, 100)   # 1 gambar acak, 3 channel, 100 x 100
+    dummy = torch.rand(1, 3, 100, 100)
     out = model(dummy)
     print("Bentuk input  :", tuple(dummy.shape))
-    print("Bentuk output :", tuple(out.shape))           # harus (1, 6)
-    print("Jumlah peluang:", round(out.exp().sum().item(), 4))  # harus 1.0
+    print("Bentuk output :", tuple(out.shape))
+    print("Jumlah peluang:", round(out.exp().sum().item(), 4))
     print("Jumlah parameter:", sum(p.numel() for p in model.parameters()))
