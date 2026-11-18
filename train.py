@@ -6,7 +6,7 @@ import argparse
 import torch
 import torch.nn as nn
 import matplotlib
-matplotlib.use("Agg")  # simpan grafik ke file tanpa membuka jendela
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader
@@ -16,31 +16,31 @@ from config import CONFIGS
 
 
 def train_one_fold(cfg, model_name, fold, epochs, root, device):
-    # ---------- Data ----------
+    # Data
     train_data = getImageLabel(fold=fold, split='Train', img_size=cfg['img_size'], root=root)
     valid_data = getImageLabel(fold=fold, split='Valid', img_size=cfg['img_size'], root=root)
     train_loader = DataLoader(train_data, batch_size=cfg['batch_size'], shuffle=True)
     valid_loader = DataLoader(valid_data, batch_size=cfg['batch_size'], shuffle=False)
     print(f"  Data: {len(train_data)} train, {len(valid_data)} valid")
 
-    # ---------- Model baru untuk setiap fold ----------
+    # Model
     model = cfg['model'](**cfg.get('model_args', {})).to(device)
     optimizer = Adam(model.parameters(), lr=cfg['lr'])
-    loss_function = nn.NLLLoss()  # pasangan LogSoftmax di akhir model
+    loss_function = nn.NLLLoss()
 
     checkpoint_path = os.path.join("Checkpoints", model_name, f"{model_name}_fold{fold}.pt")
     best_valid_loss, best_epoch, wait = float('inf'), 0, 0
-    history = []  # (epoch, train_loss, valid_loss, valid_acc)
+    history = []
 
     for epoch in range(epochs):
         start = time.time()
 
-        # ---------- Training ----------
+        # Training
         model.train()
         train_loss = 0
         for src, trg in train_loader:
-            src = torch.permute(src, (0, 3, 1, 2)).to(device)  # (B, H, W, 3) -> (B, 3, H, W)
-            trg = torch.argmax(trg, dim=1).to(device)          # one-hot -> nomor kelas
+            src = torch.permute(src, (0, 3, 1, 2)).to(device)
+            trg = torch.argmax(trg, dim=1).to(device)
 
             pred = model(src)
             loss = loss_function(pred, trg)
@@ -50,7 +50,7 @@ def train_one_fold(cfg, model_name, fold, epochs, root, device):
             loss.backward()
             optimizer.step()
 
-        # ---------- Validasi (tanpa belajar) ----------
+        # Validasi
         model.eval()
         valid_loss, correct, total = 0, 0, 0
         with torch.no_grad():
@@ -68,7 +68,7 @@ def train_one_fold(cfg, model_name, fold, epochs, root, device):
         valid_acc = correct / total
         history.append((epoch + 1, train_loss, valid_loss, valid_acc))
 
-        # ---------- Simpan model terbaik (valid loss terendah) ----------
+        # Simpan model terbaik
         mark = ""
         if valid_loss < best_valid_loss:
             best_valid_loss, best_epoch, wait = valid_loss, epoch + 1, 0
@@ -86,12 +86,12 @@ def train_one_fold(cfg, model_name, fold, epochs, root, device):
         print(f"  Epoch {epoch + 1:3d}/{epochs} | train loss = {train_loss:.4f} | valid loss = {valid_loss:.4f} "
               f"| valid acc = {valid_acc:.4f} | {time.time() - start:.1f}s{mark}")
 
-        # ---------- Early stopping (opsional) ----------
+        # Early stopping
         if cfg.get('patience') is not None and wait >= cfg['patience']:
             print(f"  Early stopping: valid loss tidak membaik selama {cfg['patience']} epoch")
             break
 
-    # ---------- Grafik loss ----------
+    # Grafik loss
     epochs_ran = [h[0] for h in history]
     plt.figure()
     plt.plot(epochs_ran, [h[1] for h in history], color="#931a00", label='Training')
@@ -104,7 +104,7 @@ def train_one_fold(cfg, model_name, fold, epochs, root, device):
     plt.savefig(os.path.join("Results", model_name, f"training_fold{fold}.png"))
     plt.close()
 
-    # ---------- Riwayat per epoch ----------
+    # Riwayat per epoch
     with open(os.path.join("Results", model_name, f"history_fold{fold}.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["epoch", "train_loss", "valid_loss", "valid_acc"])
@@ -129,8 +129,9 @@ def main():
     os.makedirs(os.path.join("Results", args.model), exist_ok=True)
 
     print(f"Model: {args.model} | device: {device} | fold: 1-{args.folds} | epoch: {epochs}")
-    root = get_dataset_root()  # cukup sekali untuk semua fold
+    root = get_dataset_root()
 
+    # Training per fold
     summary = []
     for fold in range(1, args.folds + 1):
         print(f"\n===== Fold {fold} =====")
@@ -140,6 +141,7 @@ def main():
         summary.append((fold, best_epoch, best_valid_loss, minutes))
         print(f"  Selesai: model terbaik di epoch {best_epoch} (valid loss {best_valid_loss:.4f}), {minutes:.1f} menit")
 
+    # Ringkasan
     with open(os.path.join("Results", args.model, "training_summary.csv"), "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["fold", "best_epoch", "best_valid_loss", "minutes"])
